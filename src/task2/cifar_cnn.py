@@ -4,6 +4,9 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc
+import numpy as np
+import matplotlib.pyplot as plt
 
 torch.manual_seed(42)
 
@@ -49,36 +52,91 @@ loss_function = nn.CrossEntropyLoss()
 optimizer =optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 def train_model(model, train_loader, loss_function, optimizer, num_epochs=5):
+    loss_list = []  # Initialize an empty list to store the average loss per epoch
+    
     for epoch in range(num_epochs):
         train_loss = 0.0
         model.train()
         for X_train, y_train in train_loader:
-            optimizer.zero_grad()            # zero the gradients
-            outputs = model(X_train)         # forward pass
-            loss = loss_function(outputs, y_train)  #  loss
-            loss.backward()                  # backward pass
-            optimizer.step()                 # update weights
+            optimizer.zero_grad()            # Zero the gradients
+            outputs = model(X_train)         # Forward pass
+            loss = loss_function(outputs, y_train)  # Compute loss
+            loss.backward()                  # Backward pass
+            optimizer.step()                 # Update weights
             train_loss += loss.item()
         
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {train_loss / len(train_loader):.4f}")
+        # Compute and save the average loss for this epoch
+        average_loss = train_loss / len(train_loader)
+        loss_list.append(average_loss)
+        
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {average_loss:.4f}")
+    
     print("Training Complete!")
-
-train_model(model, train_loader, loss_function, optimizer, num_epochs=20)
-
+    return loss_list  # Return the loss list
 
 
-def evaluate_model(model, test_loader):
-    print("\nEvaluating the model...")
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():  # Disable gradient calculation
-        for X_test, y_test in test_loader:
-            outputs = model(X_test)
-            _, predicted = torch.max(outputs, 1)  # Get class index with highest probability
-            total += y_test.size(0)
-            correct += (predicted == y_test).sum().item()
 
-    print(f"Test Accuracy: {100 * correct / total:.2f}%")
 
-evaluate_model(model, test_loader)
+
+
+# Function to evaluate the model
+def evaluate_model(model, train_loader, test_loader, loss_list):
+    model.eval()  # Explicitly set to evaluation mode
+    
+    # Helper function to predict probabilities and labels
+    def get_predictions(loader):
+        all_labels = []
+        all_preds = []
+        all_probs = []
+        with torch.no_grad():
+            for inputs, labels in loader:
+                outputs = model(inputs)
+                probs = torch.softmax(outputs, dim=1)  # Probabilities
+                preds = torch.argmax(probs, dim=1)     # Predicted labels
+                
+                all_labels.extend(labels.numpy())
+                all_preds.extend(preds.numpy())
+                all_probs.extend(probs.numpy())
+        return np.array(all_labels), np.array(all_preds), np.array(all_probs)
+    
+    # Predict on Train and Test Datasets
+    Y_train, Y_train_pred, Y_train_prob = get_predictions(train_loader)
+    Y_test, Y_test_pred, Y_test_prob = get_predictions(test_loader)
+    
+    # Compute Training Metrics
+    print("\nModel Performance -")
+    print("Training Accuracy:", round(accuracy_score(Y_train, Y_train_pred), 3))
+    print("Training Precision (macro):", round(precision_score(Y_train, Y_train_pred, average='macro'), 3))
+    print("Training Recall (macro):", round(recall_score(Y_train, Y_train_pred, average='macro'), 3))
+
+    # Compute Validation Metrics
+    print("Validation Accuracy:", round(accuracy_score(Y_test, Y_test_pred), 3))
+    print("Validation Precision (macro):", round(precision_score(Y_test, Y_test_pred, average='macro'), 3))
+    print("Validation Recall (macro):", round(recall_score(Y_test, Y_test_pred, average='macro'), 3))
+    
+    # Plot the Loss Curve
+    plt.figure(figsize=(20, 5))
+    plt.subplot(1, 2, 1)
+    plt.plot(loss_list)
+    plt.title('Loss across epochs')
+    plt.ylabel('Loss')
+    plt.xlabel('Epochs')
+    
+    # Plot ROC Curves (One-vs-Rest for Multi-Class)
+    plt.subplot(1, 2, 2)
+    for i in range(10):  # 10 classes
+        fpr, tpr, _ = roc_curve((Y_test == i).astype(int), Y_test_prob[:, i])
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, label=f'Class {i} AUC = {roc_auc:.2f}')
+    
+    plt.plot([0, 1], [0, 1], 'r--')  # Diagonal line
+    plt.title('ROC Curve for Validation Set')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.legend(loc='lower right')
+    plt.show()
+
+
+
+loss_list = train_model(model, train_loader, loss_function, optimizer, num_epochs=15)
+evaluate_model(model,train_loader, test_loader, loss_list)
