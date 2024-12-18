@@ -34,16 +34,28 @@ class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)  
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1) 
+        self.conv2 = nn.Conv2d(32, 128, kernel_size=3, padding=1) 
+        self.conv3 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
         self.pool = nn.MaxPool2d(2, 2)                           #  pooling layer
-        self.fc1 = nn.Linear(64 * 8 * 8, 128)                   # fully connected layer
-        self.fc2 = nn.Linear(128, 10)                           # output layer 10
+
+        self.dropout1 = nn.Dropout(0.3)
+        self.dropout2 = nn.Dropout(0.5)
+
+        self.fc1 = nn.Linear(128 * 4 * 4, 256)                   # fully connected layer
+        self.fc2 = nn.Linear(256, 10)                           # output layer 10
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))  # conv1 -> ReLU -> Pool
+        x = self.dropout1(x)
+
         x = self.pool(F.relu(self.conv2(x)))  # conv2 -> ReLU -> Pool
-        x = x.view(-1, 64 * 8 * 8)            # flatten the output
+        x = self.dropout1(x)
+
+        x = self.pool(F.relu(self.conv3(x)))
+        x = x.view(x.size(0), -1)            # flatten the output
         x = F.relu(self.fc1(x))               # fully connected -> ReLU
+        x = self.dropout2(x)
+
         x = self.fc2(x)                       # fully connected -> out
         return x
     
@@ -138,31 +150,63 @@ def evaluate_model(model, train_loader, test_loader, loss_list):
 
 
 
-loss_list = train_model(model, train_loader, loss_function, optimizer, num_epochs=10)
+loss_list = train_model(model, train_loader, loss_function, optimizer, num_epochs=15)
 evaluate_model(model,train_loader, test_loader, loss_list)
 
 
 # output
 
-# Epoch [1/10], Loss: 1.5370
-# Epoch [2/10], Loss: 1.0723
-# Epoch [3/10], Loss: 0.8774
-# Epoch [4/10], Loss: 0.7398
-# Epoch [5/10], Loss: 0.6216
-# Epoch [6/10], Loss: 0.5134
-# Epoch [7/10], Loss: 0.4121
-# Epoch [8/10], Loss: 0.3186
-# Epoch [9/10], Loss: 0.2264
-# Epoch [10/10], Loss: 0.1708
+# Epoch [1/15], Loss: 1.7323
+# Epoch [2/15], Loss: 1.3656
+# Epoch [3/15], Loss: 1.2109
+# Epoch [4/15], Loss: 1.1265
+# Epoch [5/15], Loss: 1.0554
+# Epoch [6/15], Loss: 1.0116
+# Epoch [7/15], Loss: 0.9683
+# Epoch [8/15], Loss: 0.9395
+# Epoch [9/15], Loss: 0.9050
+# Epoch [10/15], Loss: 0.8807
+# Epoch [11/15], Loss: 0.8614
+# Epoch [12/15], Loss: 0.8425
+# Epoch [13/15], Loss: 0.8226
+# Epoch [14/15], Loss: 0.8122
+# Epoch [15/15], Loss: 0.8034
 # Training Complete!
 
 # Model Performance -
-# Training Accuracy: 0.963
-# Training Precision (macro): 0.964
-# Training Recall (macro): 0.963
-# Validation Accuracy: 0.723
-# Validation Precision (macro): 0.731
-# Validation Recall (macro): 0.723
+# Training Accuracy: 0.827
+# Training Precision (macro): 0.828
+# Training Recall (macro): 0.827
+# Validation Accuracy: 0.734
+# Validation Precision (macro): 0.734
+# Validation Recall (macro): 0.734
 
-# overall not bad but definetly overfitting
-# introduce droput layer
+# added dropout, slight improvement
+# action: added new layer increased layer size
+
+# after:
+# Epoch [1/15], Loss: 1.7858
+# Epoch [2/15], Loss: 1.3379
+# Epoch [3/15], Loss: 1.1332
+# Epoch [4/15], Loss: 0.9993
+# Epoch [5/15], Loss: 0.8982
+# Epoch [6/15], Loss: 0.8286
+# Epoch [7/15], Loss: 0.7712
+# Epoch [8/15], Loss: 0.7244
+# Epoch [9/15], Loss: 0.6825
+# Epoch [10/15], Loss: 0.6542
+# Epoch [11/15], Loss: 0.6235
+# Epoch [12/15], Loss: 0.6011
+# Epoch [13/15], Loss: 0.5753
+# Epoch [14/15], Loss: 0.5479
+# Epoch [15/15], Loss: 0.5321
+# Training Complete!
+
+# Model Performance -
+# Training Accuracy: 0.889
+# Training Precision (macro): 0.892
+# Training Recall (macro): 0.889
+# Validation Accuracy: 0.784
+# Validation Precision (macro): 0.79
+# Validation Recall (macro): 0.785
+
