@@ -22,8 +22,8 @@ transform = transforms.Compose([
 train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=False)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=64, shuffle=False)
 
 
 
@@ -138,5 +138,31 @@ def evaluate_model(model, train_loader, test_loader, loss_list):
 
 
 
-loss_list = train_model(model, train_loader, loss_function, optimizer, num_epochs=15)
+loss_list = train_model(model, train_loader, loss_function, optimizer, num_epochs=10)
 evaluate_model(model,train_loader, test_loader, loss_list)
+
+
+# output
+
+# Epoch [1/10], Loss: 1.5370
+# Epoch [2/10], Loss: 1.0723
+# Epoch [3/10], Loss: 0.8774
+# Epoch [4/10], Loss: 0.7398
+# Epoch [5/10], Loss: 0.6216
+# Epoch [6/10], Loss: 0.5134
+# Epoch [7/10], Loss: 0.4121
+# Epoch [8/10], Loss: 0.3186
+# Epoch [9/10], Loss: 0.2264
+# Epoch [10/10], Loss: 0.1708
+# Training Complete!
+
+# Model Performance -
+# Training Accuracy: 0.963
+# Training Precision (macro): 0.964
+# Training Recall (macro): 0.963
+# Validation Accuracy: 0.723
+# Validation Precision (macro): 0.731
+# Validation Recall (macro): 0.723
+
+# overall not bad but definetly overfitting
+# introduce droput layer
