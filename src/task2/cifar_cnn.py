@@ -13,9 +13,22 @@ torch.manual_seed(42)
 
 
 # convert to nparray and normalize 
+# transform = transforms.Compose([
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+# ])
+
 transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    transforms.RandomHorizontalFlip(),        # randomly flip images horizontally
+    transforms.RandomCrop(32, padding=4),     # random crop with padding
+    transforms.RandomRotation(10),            # random rotation up to 10 degrees
+    transforms.ColorJitter(brightness=0.2,    # random changes in brightness, contrast, etc.
+                           contrast=0.2, 
+                           saturation=0.2, 
+                           hue=0.1),
+    transforms.ToTensor(),                    # ronvert to tensor
+    transforms.Normalize((0.5, 0.5, 0.5),    # ormalize to [-1, 1]
+                         (0.5, 0.5, 0.5))
 ])
 
 # get dataset
@@ -155,58 +168,4 @@ evaluate_model(model,train_loader, test_loader, loss_list)
 
 
 # output
-
-# Epoch [1/15], Loss: 1.7323
-# Epoch [2/15], Loss: 1.3656
-# Epoch [3/15], Loss: 1.2109
-# Epoch [4/15], Loss: 1.1265
-# Epoch [5/15], Loss: 1.0554
-# Epoch [6/15], Loss: 1.0116
-# Epoch [7/15], Loss: 0.9683
-# Epoch [8/15], Loss: 0.9395
-# Epoch [9/15], Loss: 0.9050
-# Epoch [10/15], Loss: 0.8807
-# Epoch [11/15], Loss: 0.8614
-# Epoch [12/15], Loss: 0.8425
-# Epoch [13/15], Loss: 0.8226
-# Epoch [14/15], Loss: 0.8122
-# Epoch [15/15], Loss: 0.8034
-# Training Complete!
-
-# Model Performance -
-# Training Accuracy: 0.827
-# Training Precision (macro): 0.828
-# Training Recall (macro): 0.827
-# Validation Accuracy: 0.734
-# Validation Precision (macro): 0.734
-# Validation Recall (macro): 0.734
-
-# added dropout, slight improvement
-# action: added new layer increased layer size
-
-# after:
-# Epoch [1/15], Loss: 1.7858
-# Epoch [2/15], Loss: 1.3379
-# Epoch [3/15], Loss: 1.1332
-# Epoch [4/15], Loss: 0.9993
-# Epoch [5/15], Loss: 0.8982
-# Epoch [6/15], Loss: 0.8286
-# Epoch [7/15], Loss: 0.7712
-# Epoch [8/15], Loss: 0.7244
-# Epoch [9/15], Loss: 0.6825
-# Epoch [10/15], Loss: 0.6542
-# Epoch [11/15], Loss: 0.6235
-# Epoch [12/15], Loss: 0.6011
-# Epoch [13/15], Loss: 0.5753
-# Epoch [14/15], Loss: 0.5479
-# Epoch [15/15], Loss: 0.5321
-# Training Complete!
-
-# Model Performance -
-# Training Accuracy: 0.889
-# Training Precision (macro): 0.892
-# Training Recall (macro): 0.889
-# Validation Accuracy: 0.784
-# Validation Precision (macro): 0.79
-# Validation Recall (macro): 0.785
 
