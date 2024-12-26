@@ -1,0 +1,1 @@
+from Task1.data_loader import load_fashion_mnist
