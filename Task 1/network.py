@@ -11,11 +11,22 @@ from layers.dropout import Dropout
 # Regulariser (L1 or L2)
 
 class NeuralNetwork:
-    def __init__(self, layer_sizes, activations, dropout_rate=0.5, regularization=None, reg_lambda=0.01):
+    def __init__(self, layer_sizes, activations, optimizer=None, dropout_rate=0.5, regularization=None, reg_lambda=0.01):
         # Store network layers here
         self.layers = []
         self.regularization = regularization
         self.reg_lambda = reg_lambda
+        self.optimizer = optimizer
+
+        # Track parameters to help with report 
+         self.training_params = {
+            'optimizer': optimizer.__class__.__name__ if optimizer else None,
+            'learning_rate': optimizer.learning_rate if optimizer else None,
+            'dropout_rate': dropout_rate,
+            'regularization': regularization,
+            'reg_lambda': reg_lambda,
+            'layer_sizes': layer_sizes
+        }
 
         # Build network architecture by adding layers one by one
         for i in range(len(layer_sizes)-1):
@@ -68,11 +79,15 @@ class NeuralNetwork:
             if isinstance(layer, Dense):
                 params.extend([layer.weights, layer.bias])
                 grads.extend([layer.weights_grad, layer.bias_grad])
+        
+        # Update the optimizer if available
+        if self.optimizer:
+            self.optimizer.update(params, grads)
         return params, grads
     
     def train_step(self, X, y):
         # Forward pass -> loss gradient -> backward pass
-        predictions = self.forward(X)
+        predictions = self.forward(X, training = True)
         grad = predictions - y
         params, grads = self.backward(grad)
 
