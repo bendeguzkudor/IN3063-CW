@@ -5,7 +5,7 @@ import numpy as np
 class ReLU:
     def forward(self, input_data):
         # Returns max(0, x) for each element in input_data.
-        # We store the input_data for use in the backward pass.
+        # Store the input_data for use in the backward pass.
         self.input_data = input_data
         return np.maximum(0, input_data)
        
