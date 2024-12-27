@@ -1,7 +1,11 @@
 import numpy as np
 
 class Dense:
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, regularization = None, reg_lambda = 0.01):
+        self.input_size = input_size
+        self.output_size = output_size
+        self.regularization = regularization
+        self.reg_lambda = reg_lambda
         # Initialising weights with small random values (scaled by 0.01)
         # Bias is set to zero for simplicity
         self.weights = np.random.randn(input_size, output_size) * 0.01
@@ -27,8 +31,10 @@ class Dense:
 
 # TEST
 # (1,3) input
+"""
 dense = Dense(input_size =3, output_size = 2)
 test_input = np.array([[1, 2, 3]])
 output = dense.forward(test_input)
 #Print should be (1, 2)
 print("Dense layer output shapre:", output.shape)
+"""

@@ -19,7 +19,7 @@ class NeuralNetwork:
         self.optimizer = optimizer
 
         # Track parameters to help with report 
-         self.training_params = {
+        self.training_params = {
             'optimizer': optimizer.__class__.__name__ if optimizer else None,
             'learning_rate': optimizer.learning_rate if optimizer else None,
             'dropout_rate': dropout_rate,
