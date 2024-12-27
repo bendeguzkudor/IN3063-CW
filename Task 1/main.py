@@ -11,10 +11,9 @@ from optimisers.adam import Adam
 from train import train
 import matplotlib.pyplot as plt
 
+# Using scikit-learn ONLY for evaluation. Need to check if allowed 
+from sklearn.metrics import classification_report
 
-# Now import TensorFlow and other modules
-import tensorflow as tf
-# Other imports and your code...
 
 # Load the Fashoin-MNIST dataset
 X_train, y_train, X_test, y_test = load_fashion_mnist()
@@ -63,6 +62,14 @@ def run_tests(model, X_test, y_test, class_names, num_tests=100):
 
 # Run the tests (img display removed)
 run_tests(model, X_test, y_test, class_names, num_tests=1000)
+
+# Collect true labels and predictions
+y_pred = [np.argmax(model.forward(X_test[i:i+1], training=False)) for i in range(len(X_test))]
+y_true = [np.argmax(y) for y in y_test]
+
+# Generate classification report
+print("\nClassification Report:")
+print(classification_report(y_true, y_pred, target_names=class_names))
 
 # Adam tests
 # 100 tests returned 85% accuracy
