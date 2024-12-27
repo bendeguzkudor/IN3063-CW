@@ -7,7 +7,8 @@ import numpy as np
 from network import NeuralNetwork
 from layers.activation import ReLU
 from data_loader import load_fashion_mnist
-from optimisers.adam import Adam
+from optimisers.adam import Adam # Adam optimiser 
+from optimisers.adagrad import AdaGrad # Adagrad optimiser
 from train import train
 import matplotlib.pyplot as plt
 
@@ -27,7 +28,10 @@ class_names = [ 'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
 model = NeuralNetwork(
     layer_sizes=[784, 256, 10],   # 784 input dims, 256 hidden, 10 output
     activations=[ReLU()],        # Use ReLU for hidden layer
-    optimizer=Adam(learning_rate=0.0001),  # Adam optimser with chosen LR
+    
+    optimiser=Adam(learning_rate=0.0001),  # Adam optimser with chosen LR
+   
+   # optimiser=AdaGrad(learning_rate=0.001),  # Adagrad optimiser with chosen LR
     dropout_rate=0.5,            # Dropout rate for regularisation
     regularization=None          # No regularisation for now
 )
