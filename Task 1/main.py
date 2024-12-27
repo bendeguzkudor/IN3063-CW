@@ -19,10 +19,8 @@ from sklearn.metrics import classification_report, confusion_matrix, ConfusionMa
 X_train, y_train, X_test, y_test = load_fashion_mnist()
 
 # Class names for Fashion-MNIST labels
-class_names = [
-    'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-    'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot'
-]
+class_names = [ 'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
 # Create a neural netwrok model
 # with specified layer sizes and ReLU activation

@@ -38,7 +38,7 @@ def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32):
         test_pred = model.forward(X_test, training=False)
 
         # Calculate validation loss (if model.forward provides the loss functionality)
-        # Generate predictions for the test set
+        # Generate predictons for the test set
         test_pred = model.forward(X_test, training=False)
 
         # Calculate validation loss using predictions and true labels
