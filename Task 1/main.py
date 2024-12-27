@@ -1,3 +1,8 @@
+import os
+
+# Suppress TensorFlow oneDNN warnings and logs
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN custom operations
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress INFO and WARNING logs
 import numpy as np
 from network import NeuralNetwork
 from layers.activation import ReLU
@@ -5,11 +10,7 @@ from data_loader import load_fashion_mnist
 from optimisers.adam import Adam
 from train import train
 import matplotlib.pyplot as plt
-import os
 
-# Suppress TensorFlow oneDNN warnings and logs
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN custom operations
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress INFO and WARNING logs
 
 # Now import TensorFlow and other modules
 import tensorflow as tf
@@ -35,24 +36,35 @@ class_names = [
     'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot'
 ]
 
-# Evaluate the model on random samples from the test set
-# TODO: Prevent image from displaying, greatly increase no. of tests, give % accuracy
-for i in range(10):
-    # Pick a random index from the test set
-    test_idx = np.random.randint(0, len(X_test))
-    test_image = X_test[test_idx:test_idx+1]
+# nEW TESTING FUNCTION
+def run_tests(model, X_test, y_test, class_names, num_tests=100):
+    correct_count = 0
 
-    # Generate a prediction from the model
-    pred = model.forward(test_image, training=False)
-    predicted_class = np.argmax(pred)
-    actual_class = np.argmax(y_test[test_idx])
+    for i in range(num_tests):
+        # Pick a random index from the test set
+        test_idx = np.random.randint(0, len(X_test))
+        test_image = X_test[test_idx:test_idx+1]
+        actual_class = np.argmax(y_test[test_idx])
 
-    # Print out predicted vs. actual class
-    print(f"\nTest {i+1} Results:")
-    print(f"Predicted: {class_names[predicted_class]}")
-    print(f"Actual: {class_names[actual_class]}")
+        # Generate a prediction from the model
+        pred = model.forward(test_image, training=False)
+        predicted_class = np.argmax(pred)
 
-    # Show the test image and the predicted label
-    plt.imshow(test_image.reshape(28,28), cmap='gray')
-    plt.title(f"Prediction: {class_names[predicted_class]}")
-    plt.show()
+        # Compare prediction with actual class
+        if predicted_class == actual_class:
+            correct_count += 1
+
+        # Log the result (optonal but good for debugging)
+        print(f"Test {i+1}: Predicted: {class_names[predicted_class]}, Actual: {class_names[actual_class]}")
+
+    # Calculate and display accuracy percentage
+    accuracy = (correct_count / num_tests) * 100
+    print(f"\nAccuracy over {num_tests} tests: {accuracy:.2f}%")
+
+# Run the tests (img display removed)
+run_tests(model, X_test, y_test, class_names, num_tests=1000)
+
+# Adam tests
+# 100 tests returned 85% accuracy
+# 2nd attempt at 100 tests, 85% accuracy
+# 1000 tests, 83% accuracy
