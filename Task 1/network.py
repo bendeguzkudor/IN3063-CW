@@ -88,7 +88,12 @@ class NeuralNetwork:
     def train_step(self, X, y):
         # Forward pass -> loss gradient -> backward pass
         predictions = self.forward(X, training = True)
+        # Corss-entropy loss calculation 
+        loss = -np.mean(np.sum(y * np.log(predictions + 1e-8), axis=1))
         grad = predictions - y
-        params, grads = self.backward(grad)
+        self.backward(grad)
 
-        return predictions
+        return loss
+
+    def loss(self, y_true, y_pred):
+        return -np.mean(np.sum(y_true * np.log(y_pred + 1e-8), axis=1))
