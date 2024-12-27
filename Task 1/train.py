@@ -54,3 +54,4 @@ def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32):
 
     # Return losses and accuracies for plotting
     return training_losses, validation_losses, validation_accuracies
+

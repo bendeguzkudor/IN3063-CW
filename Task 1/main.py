@@ -29,9 +29,8 @@ model = NeuralNetwork(
     layer_sizes=[784, 256, 10],   # 784 input dims, 256 hidden, 10 output
     activations=[ReLU()],        # Use ReLU for hidden layer
     
-    optimiser=Adam(learning_rate=0.0001),  # Adam optimser with chosen LR
-   
-   # optimiser=AdaGrad(learning_rate=0.001),  # Adagrad optimiser with chosen LR
+    # optimiser=Adam(learning_rate=0.0001),  # Adam optimser with chosen LR
+    # optimiser=AdaGrad(learning_rate=0.001),  # Adagrad optimiser with chosen LR
     dropout_rate=0.5,            # Dropout rate for regularisation
     regularization=None          # No regularisation for now
 )
