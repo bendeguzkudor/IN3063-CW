@@ -2,11 +2,13 @@ import numpy as np
 
 class Dropout:
     def __init__(self, p=0.5, seed=42):
+        # Ensure probability is in valid range [0,1]
         self.p = max(0, min(1, p))
         self.seed = seed
         self.mask = None  # Will store the dropout mask
 
     def forward(self, x, training=True, seed=None):
+        # If not training or no dropout (p=0), return input unchanged
         if not training or self.p == 0:
             return x
         
@@ -20,9 +22,6 @@ class Dropout:
         return x * self.mask
 
     def backward(self, grad_output):
-        #Backward pass of dropout layer. Propagates gradients through
-        # the same mask used in forward pass.
-
         # If no dropout was applied (p=0), pass gradient unchanged
         if self.p == 0:
             return grad_output
