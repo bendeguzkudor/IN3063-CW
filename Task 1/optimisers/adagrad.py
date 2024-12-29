@@ -25,3 +25,5 @@ class AdaGrad:
 
             # apply update to parameter 
             p += update
+
+
