@@ -8,12 +8,23 @@ from network import NeuralNetwork
 from layers.activation import ReLU
 from data_loader import load_fashion_mnist
 from optimisers.adam import Adam
+from optimisers.adagrad import AdaGrad
 from train import train
 import matplotlib.pyplot as plt
 
 # Using scikit-learn ONLY for evaluation. Need to check if allowed 
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 
+# Set the optimiser dynamically
+OPTIMISER_NAME = 'adagrad'  # Change to 'adam' for Adam optimiser
+
+# Dynamically create the optimiser
+if OPTIMISER_NAME == 'adam':
+    optimizer = Adam(learning_rate=0.0001)
+elif OPTIMISER_NAME == 'adagrad':
+    optimizer = AdaGrad(learning_rate=0.0001)
+else:
+    raise ValueError(f"Unknown optimiser: {OPTIMISER_NAME}")
 
 # Load the Fashoin-MNIST dataset
 X_train, y_train, X_test, y_test = load_fashion_mnist()
@@ -27,16 +38,25 @@ class_names = [ 'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
 model = NeuralNetwork(
     layer_sizes=[784, 256, 10],   # 784 input dims, 256 hidden, 10 output
     activations=[ReLU()],        # Use ReLU for hidden layer
-    optimizer=Adam(learning_rate=0.0001),  # Adam optimser with chosen LR
+    optimizer=optimizer,  
     dropout_rate=0.5,            # Dropout rate for regularisation
     regularization=None          # No regularisation for now
 )
 
 # Train the model and colelct accuracy over epochs
-training_losses, validation_losses, validation_accuracies = train(
+training_losses, validation_losses, validation_accuracies, training_accuracies = train(
     model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32
 )
 
+# Plot Training vs Validation Accuracy
+plt.figure(figsize=(10, 5))
+plt.plot(range(len(training_accuracies)), training_accuracies, label="Training Accuracy")
+plt.plot(range(len(validation_accuracies)), validation_accuracies, label="Validation Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.title("Training vs Validation Accuracy")
+plt.show()
 
 # Plot Training vs Validation Loss
 plt.plot(range(len(training_losses)), training_losses, label="Training Loss")
@@ -54,6 +74,26 @@ plt.ylabel("Accuracy")
 plt.legend()
 plt.title("Validation Accuracy Over Epochs")
 plt.show()
+
+# Plot Adam's effective learning rate
+epochs = range(10)
+# Calculate and plot effective learning rate based on optimiser
+if isinstance(model.optimizer, Adam):
+    effective_lr = [model.optimizer.learning_rate / 
+                    (1 - model.optimizer.beta1**(epoch+1)) for epoch in epochs]
+elif isinstance(model.optimizer, AdaGrad):
+    effective_lr = [model.optimizer.learning_rate for epoch in epochs]
+else:
+    effective_lr = []  # No effective learning rate for unsupported optimisers
+
+if effective_lr:
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs, effective_lr)
+    plt.xlabel("Epochs")
+    plt.ylabel("Effective Learning Rate")
+    plt.title("Effective Learning Rate Over Epochs")
+    plt.show()
+
 
 # Evaluate the model on the test set
 y_pred = [np.argmax(model.forward(X_test[i:i+1], training=False)) for i in range(len(X_test))]
@@ -75,38 +115,3 @@ class_accuracies = cm.diagonal() / cm.sum(axis=1)
 for i, accuracy in enumerate(class_accuracies):
     print(f"Accuracy for {class_names[i]}: {accuracy:.2%}")
 
-"""
-# nEW TESTING FUNCTION
-def run_tests(model, X_test, y_test, class_names, num_tests=100):
-    correct_count = 0
-
-    for i in range(num_tests):
-        # Pick a random index from the test set
-        test_idx = np.random.randint(0, len(X_test))
-        test_image = X_test[test_idx:test_idx+1]
-        actual_class = np.argmax(y_test[test_idx])
-
-        # Generate a prediction from the model
-        pred = model.forward(test_image, training=False)
-        predicted_class = np.argmax(pred)
-
-        # Compare prediction with actual class
-        if predicted_class == actual_class:
-            correct_count += 1
-
-        # Log the result (optonal but good for debugging)
-        print(f"Test {i+1}: Predicted: {class_names[predicted_class]}, Actual: {class_names[actual_class]}")
-
-    # Calculate and display accuracy percentage
-    accuracy = (correct_count / num_tests) * 100
-    print(f"\nAccuracy over {num_tests} tests: {accuracy:.2f}%")
-
-# Run the tests (img display removed)
-run_tests(model, X_test, y_test, class_names, num_tests=1000)
-
-
-# Adam tests
-# 100 tests returned 85% accuracy
-# 2nd attempt at 100 tests, 85% accuracy
-# 1000 tests, 83% accuracy
-"""

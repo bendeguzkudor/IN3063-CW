@@ -1,8 +1,21 @@
 import numpy as np
+from seed_utils import set_seeds
 
-def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32):
-    # Prepare a list to track training + validation loss/accuracy
+def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32, seed=42):
+    set_seeds(seed)  # Initial seed
+    
+    for epoch in range(epochs):
+        # New seed for each epoch but deterministic
+        epoch_seed = seed + epoch
+        np.random.seed(epoch_seed)
+        
+        # Shuffle with new seed
+        perm = np.random.permutation(len(X_train))
+        X_train = X_train[perm]
+        y_train = y_train[perm]
+        
     training_losses = []
+    training_accuracies = []
     validation_losses = []
     validation_accuracies = []
     # Determine how many mini-batches can be formed from the training data
@@ -34,10 +47,15 @@ def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32):
         avg_train_loss = epoch_loss / n_batches
         training_losses.append(avg_train_loss)
 
+        # Calculate training accuracy
+        train_pred = model.forward(X_train, training=False)
+        train_accuracy = np.mean(np.argmax(train_pred, axis=1) == np.argmax(y_train, axis=1))
+        training_accuracies.append(train_accuracy)
+
         # Obtain predictions on the validation/test set
         test_pred = model.forward(X_test, training=False)
 
-        # Calculate validation loss (if model.forward provides the loss functionality)
+        # Calculate validation loss 
         # Generate predictons for the test set
         test_pred = model.forward(X_test, training=False)
 
@@ -49,8 +67,10 @@ def train(model, X_train, y_train, X_test, y_test, epochs=10, batch_size=32):
         val_accuracy = np.mean(np.argmax(test_pred, axis=1) == np.argmax(y_test, axis=1))
         validation_accuracies.append(val_accuracy)
 
-        print(f"Epoch {epoch + 1}/{epochs}, Training Loss: {avg_train_loss:.4f}, "
-              f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+        print(f"Epoch {epoch + 1}/{epochs}, "
+              f"Training Loss: {avg_train_loss:.4f}, "
+              f"Training Accuracy: {train_accuracy:.4f}, "
+              f"Validation Loss: {val_loss:.4f}, "
+              f"Validation Accuracy: {val_accuracy:.4f}")
 
-    # Return losses and accuracies for plotting
-    return training_losses, validation_losses, validation_accuracies
+    return training_losses, validation_losses, validation_accuracies, training_accuracies

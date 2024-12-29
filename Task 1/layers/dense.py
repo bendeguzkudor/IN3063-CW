@@ -1,7 +1,8 @@
 import numpy as np
 
 class Dense:
-    def __init__(self, input_size, output_size, regularization = None, reg_lambda = 0.01):
+    def __init__(self, input_size, output_size, regularization = None, reg_lambda = 0.01, seed=42):
+        np.random.seed(seed)
         self.input_size = input_size
         self.output_size = output_size
         self.regularization = regularization

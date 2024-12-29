@@ -11,8 +11,9 @@ from layers.dropout import Dropout
 # Regulariser (L1 or L2)
 
 class NeuralNetwork:
-    def __init__(self, layer_sizes, activations, optimizer=None, dropout_rate=0.5, regularization=None, reg_lambda=0.01):
+    def __init__(self, layer_sizes, activations, optimizer=None, dropout_rate=0.5, regularization=None, reg_lambda=0.01, seed=42):
         # Store network layers here
+        set_seeds(seed)
         self.layers = []
         self.regularization = regularization
         self.reg_lambda = reg_lambda

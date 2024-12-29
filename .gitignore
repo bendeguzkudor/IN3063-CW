@@ -4,3 +4,6 @@ data/
 *.ipynb_checkpoints/
 venv
 Task 1/venv/
+Task 1/arc_tests.py
+Task 1/reg_tests.py
+Task 1/activation_optimizer_tests.py
